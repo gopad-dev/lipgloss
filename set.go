@@ -11,6 +11,8 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.fgColor = colorOrNil(value)
 	case backgroundKey:
 		s.bgColor = colorOrNil(value)
+	case underlineColorKey:
+		s.underlineColor = colorOrNil(value)
 	case widthKey:
 		s.width = max(0, value.(int))
 	case heightKey:
@@ -93,6 +95,8 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(foregroundKey, i.fgColor)
 	case backgroundKey:
 		s.set(backgroundKey, i.bgColor)
+	case underlineColorKey:
+		s.set(underlineColorKey, i.underlineColor)
 	case widthKey:
 		s.set(widthKey, i.width)
 	case heightKey:
@@ -179,6 +183,38 @@ func (s Style) Underline(v bool) Style {
 	return s
 }
 
+// DoubleUnderline sets a double underline rule. By default, underlines will not
+// be drawn on whitespace like margins and padding. To change this behavior set
+// UnderlineSpaces.
+func (s Style) DoubleUnderline(v bool) Style {
+	s.set(doubleUnderlineKey, v)
+	return s
+}
+
+// CurlyUnderline sets a curly underline rule. By default, underlines will not
+// be drawn on whitespace like margins and padding. To change this behavior set
+// UnderlineSpaces.
+func (s Style) CurlyUnderline(v bool) Style {
+	s.set(curlyUnderlineKey, v)
+	return s
+}
+
+// DottedUnderline sets a dotted underline rule. By default, underlines will not
+// be drawn on whitespace like margins and padding. To change this behavior set
+// UnderlineSpaces.
+func (s Style) DottedUnderline(v bool) Style {
+	s.set(dottedUnderlineKey, v)
+	return s
+}
+
+// DashedUnderline sets a dashed underline rule. By default, underlines will not
+// be drawn on whitespace like margins and padding. To change this behavior set
+// UnderlineSpaces.
+func (s Style) DashedUnderline(v bool) Style {
+	s.set(dashedUnderlineKey, v)
+	return s
+}
+
 // Strikethrough sets a strikethrough rule. By default, strikes will not be
 // drawn on whitespace like margins and padding. To change this behavior set
 // StrikethroughSpaces.
@@ -220,6 +256,13 @@ func (s Style) Foreground(c TerminalColor) Style {
 // Background sets a background color.
 func (s Style) Background(c TerminalColor) Style {
 	s.set(backgroundKey, c)
+	return s
+}
+
+// UnderlineColor sets an underline color rule. This can be used to change the
+// underline color to a different color than the foreground color.
+func (s Style) UnderlineColor(c TerminalColor) Style {
+	s.set(underlineColorKey, c)
 	return s
 }
 

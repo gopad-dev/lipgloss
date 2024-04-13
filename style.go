@@ -18,6 +18,10 @@ const (
 	boldKey propKey = 1 << iota
 	italicKey
 	underlineKey
+	doubleUnderlineKey
+	curlyUnderlineKey
+	dottedUnderlineKey
+	dashedUnderlineKey
 	strikethroughKey
 	reverseKey
 	blinkKey
@@ -29,6 +33,7 @@ const (
 	// Non-boolean props.
 	foregroundKey
 	backgroundKey
+	underlineColorKey
 	widthKey
 	heightKey
 	alignHorizontalKey
@@ -117,8 +122,9 @@ type Style struct {
 	attrs int
 
 	// props that have values
-	fgColor TerminalColor
-	bgColor TerminalColor
+	fgColor        TerminalColor
+	bgColor        TerminalColor
+	underlineColor TerminalColor
 
 	width  int
 	height int
@@ -240,16 +246,21 @@ func (s Style) Render(strs ...string) string {
 		isColorable = s.profile < Ascii
 		isDecorable = s.profile <= Ascii
 
-		bold          = s.getAsBool(boldKey, false) && isDecorable
-		italic        = s.getAsBool(italicKey, false) && isDecorable
-		underline     = s.getAsBool(underlineKey, false) && isDecorable
-		strikethrough = s.getAsBool(strikethroughKey, false) && isDecorable
-		reverse       = s.getAsBool(reverseKey, false) && isDecorable
-		blink         = s.getAsBool(blinkKey, false) && isDecorable
-		faint         = s.getAsBool(faintKey, false) && isDecorable
+		bold            = s.getAsBool(boldKey, false) && isDecorable
+		italic          = s.getAsBool(italicKey, false) && isDecorable
+		underline       = s.getAsBool(underlineKey, false) && isDecorable
+		doubleUnderline = s.getAsBool(doubleUnderlineKey, false) && isDecorable
+		curlyUnderline  = s.getAsBool(curlyUnderlineKey, false) && isDecorable
+		dottedUnderline = s.getAsBool(dottedUnderlineKey, false) && isDecorable
+		dashedUnderline = s.getAsBool(dashedUnderlineKey, false) && isDecorable
+		strikethrough   = s.getAsBool(strikethroughKey, false) && isDecorable
+		reverse         = s.getAsBool(reverseKey, false) && isDecorable
+		blink           = s.getAsBool(blinkKey, false) && isDecorable
+		faint           = s.getAsBool(faintKey, false) && isDecorable
 
-		fg = s.getAsColor(foregroundKey)
-		bg = s.getAsColor(backgroundKey)
+		fg             = s.getAsColor(foregroundKey)
+		bg             = s.getAsColor(backgroundKey)
+		underlineColor = s.getAsColor(underlineColorKey)
 
 		width           = s.getAsInt(widthKey)
 		height          = s.getAsInt(heightKey)
@@ -266,15 +277,19 @@ func (s Style) Render(strs ...string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
-		strikethroughSpaces = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
+		underlineSpaces       = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		doubleUnderlineSpaces = s.getAsBool(underlineSpacesKey, false) || (doubleUnderline && s.getAsBool(underlineSpacesKey, true))
+		curlyUnderlineSpaces  = s.getAsBool(underlineSpacesKey, false) || (curlyUnderline && s.getAsBool(underlineSpacesKey, true))
+		dottedUnderlineSpaces = s.getAsBool(underlineSpacesKey, false) || (dottedUnderline && s.getAsBool(underlineSpacesKey, true))
+		dashedUnderlineSpaces = s.getAsBool(underlineSpacesKey, false) || (dashedUnderline && s.getAsBool(underlineSpacesKey, true))
+		strikethroughSpaces   = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
 
 		// Do we need to style whitespace (padding and space outside
 		// paragraphs) separately?
 		styleWhitespace = reverse
 
 		// Do we need to style spaces separately?
-		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
+		useSpaceStyler = ((underline || doubleUnderline || curlyUnderline || dottedUnderline || dashedUnderline) && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underline || doubleUnderline || curlyUnderline || dottedUnderline || dashedUnderline || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
 	)
@@ -302,10 +317,21 @@ func (s Style) Render(strs ...string) string {
 	if underline {
 		te = te.Underline()
 	}
+	if doubleUnderline {
+		te = te.DoubleUnderline()
+	}
+	if curlyUnderline {
+		te = te.CurlyUnderline()
+	}
+	if dottedUnderline {
+		te = te.DottedUnderline()
+	}
+	if dashedUnderline {
+		te = te.DashedUnderline()
+	}
+
 	if reverse {
-		if reverse {
-			teWhitespace = teWhitespace.Reverse()
-		}
+		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
 	}
 	if blink {
@@ -335,15 +361,34 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
-	if underline {
-		te = te.Underline()
+	if underlineColor != noColor {
+		te = te.UnderlineColor(underlineColor.color(s.profile, s.hasLightBackground))
+		if colorWhitespace {
+			teWhitespace = teWhitespace.UnderlineColor(underlineColor.color(s.profile, s.hasLightBackground))
+		}
+		if useSpaceStyler {
+			teSpace = teSpace.UnderlineColor(underlineColor.color(s.profile, s.hasLightBackground))
+		}
 	}
+
 	if strikethrough {
 		te = te.Strikethrough()
 	}
 
 	if underlineSpaces {
 		teSpace = teSpace.Underline()
+	}
+	if doubleUnderlineSpaces {
+		teSpace = teSpace.DoubleUnderline()
+	}
+	if curlyUnderlineSpaces {
+		teSpace = teSpace.CurlyUnderline()
+	}
+	if dottedUnderlineSpaces {
+		teSpace = teSpace.DottedUnderline()
+	}
+	if dashedUnderlineSpaces {
+		teSpace = teSpace.DashedUnderline()
 	}
 	if strikethroughSpaces {
 		teSpace = teSpace.Strikethrough()

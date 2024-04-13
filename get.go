@@ -23,6 +23,30 @@ func (s Style) GetUnderline() bool {
 	return s.getAsBool(underlineKey, false)
 }
 
+// GetDoubleUnderline returns the style's double underline value. If no value is set false is
+// returned.
+func (s Style) GetDoubleUnderline() bool {
+	return s.getAsBool(doubleUnderlineKey, false)
+}
+
+// GetCurlyUnderline returns the style's curly underline value. If no value is set false is
+// returned.
+func (s Style) GetCurlyUnderline() bool {
+	return s.getAsBool(curlyUnderlineKey, false)
+}
+
+// GetDottedUnderline returns the style's dotted underline value. If no value is set false is
+// returned.
+func (s Style) GetDottedUnderline() bool {
+	return s.getAsBool(dottedUnderlineKey, false)
+}
+
+// GetDashedUnderline returns the style's dashed underline value. If no value is set false is
+// returned.
+func (s Style) GetDashedUnderline() bool {
+	return s.getAsBool(dashedUnderlineKey, false)
+}
+
 // GetStrikethrough returns the style's strikethrough value. If no value is set false
 // is returned.
 func (s Style) GetStrikethrough() bool {
@@ -57,6 +81,12 @@ func (s Style) GetForeground() TerminalColor {
 // NoColor{} is returned.
 func (s Style) GetBackground() TerminalColor {
 	return s.getAsColor(backgroundKey)
+}
+
+// GetUnderlineColor returns the style's underline color. If no value is set
+// NoColor{} is returned.
+func (s Style) GetUnderlineColor() TerminalColor {
+	return s.getAsColor(underlineColorKey)
 }
 
 // GetWidth returns the style's width setting. If no width is set 0 is
@@ -437,6 +467,8 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 		c = s.fgColor
 	case backgroundKey:
 		c = s.bgColor
+	case underlineColorKey:
+		c = s.underlineColor
 	case marginBackgroundKey:
 		c = s.marginBgColor
 	case borderTopForegroundKey:
