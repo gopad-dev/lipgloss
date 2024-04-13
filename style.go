@@ -18,6 +18,8 @@ const (
 	boldKey propKey = iota
 	italicKey
 	underlineKey
+	underlineColorKey
+	underlineStyleKey
 	strikethroughKey
 	reverseKey
 	blinkKey
@@ -73,6 +75,16 @@ const (
 	strikethroughSpacesKey
 
 	transformKey
+)
+
+type UnderlineStyle int
+
+const (
+	UnderlineStyleSingle UnderlineStyle = iota
+	UnderlineStyleDouble
+	UnderlineStyleCurly
+	UnderlineStyleDotted
+	UnderlineStyleDashed
 )
 
 // A set of properties.
@@ -190,13 +202,15 @@ func (s Style) Render(strs ...string) string {
 		teSpace      = p.String()
 		teWhitespace = p.String()
 
-		bold          = s.getAsBool(boldKey, false)
-		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
-		strikethrough = s.getAsBool(strikethroughKey, false)
-		reverse       = s.getAsBool(reverseKey, false)
-		blink         = s.getAsBool(blinkKey, false)
-		faint         = s.getAsBool(faintKey, false)
+		bold           = s.getAsBool(boldKey, false)
+		italic         = s.getAsBool(italicKey, false)
+		underline      = s.getAsBool(underlineKey, false)
+		underlineColor = s.getAsColor(underlineColorKey)
+		underlineStyle = s.getAsUnderlineStyle(underlineStyleKey)
+		strikethrough  = s.getAsBool(strikethroughKey, false)
+		reverse        = s.getAsBool(reverseKey, false)
+		blink          = s.getAsBool(blinkKey, false)
+		faint          = s.getAsBool(faintKey, false)
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -248,12 +262,21 @@ func (s Style) Render(strs ...string) string {
 		te = te.Italic()
 	}
 	if underline {
-		te = te.Underline()
+		switch UnderlineStyle(underlineStyle) {
+		case UnderlineStyleSingle:
+			te = te.Underline(underlineColor.color(s.r))
+		case UnderlineStyleDouble:
+			te = te.Underdouble(underlineColor.color(s.r))
+		case UnderlineStyleCurly:
+			te = te.Undercurl(underlineColor.color(s.r))
+		case UnderlineStyleDotted:
+			te = te.Underdot(underlineColor.color(s.r))
+		case UnderlineStyleDashed:
+			te = te.Underdash(underlineColor.color(s.r))
+		}
 	}
 	if reverse {
-		if reverse {
-			teWhitespace = teWhitespace.Reverse()
-		}
+		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
 	}
 	if blink {
@@ -283,15 +306,23 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
-	if underline {
-		te = te.Underline()
-	}
 	if strikethrough {
 		te = te.CrossOut()
 	}
 
 	if underlineSpaces {
-		teSpace = teSpace.Underline()
+		switch UnderlineStyle(underlineStyle) {
+		case UnderlineStyleSingle:
+			teSpace = teSpace.Underline(underlineColor.color(s.r))
+		case UnderlineStyleDouble:
+			teSpace = teSpace.Underdouble(underlineColor.color(s.r))
+		case UnderlineStyleCurly:
+			teSpace = teSpace.Undercurl(underlineColor.color(s.r))
+		case UnderlineStyleDotted:
+			teSpace = teSpace.Underdot(underlineColor.color(s.r))
+		case UnderlineStyleDashed:
+			teSpace = teSpace.Underdash(underlineColor.color(s.r))
+		}
 	}
 	if strikethroughSpaces {
 		teSpace = teSpace.CrossOut()

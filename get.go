@@ -442,6 +442,17 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 	return noColor
 }
 
+func (s Style) getAsUnderlineStyle(k propKey) UnderlineStyle {
+	v, ok := s.rules[k]
+	if !ok {
+		return UnderlineStyleSingle
+	}
+	if us, ok := v.(UnderlineStyle); ok {
+		return us
+	}
+	return UnderlineStyleSingle
+}
+
 func (s Style) getAsInt(k propKey) int {
 	v, ok := s.rules[k]
 	if !ok {

@@ -52,6 +52,21 @@ func (s Style) Underline(v bool) Style {
 	return s
 }
 
+// UnderlineColor sets an underline color rule. This can be used to change the
+// underline color to a different color than the foreground color.
+func (s Style) UnderlineColor(c TerminalColor) Style {
+	s.set(underlineColorKey, c)
+	return s
+}
+
+// UnderlineStyle sets an underline style rule. This can be used to change the
+// underline style to a double underline, a dotted underline, or a dashed
+// underline.
+func (s Style) UnderlineStyle(b UnderlineStyle) Style {
+	s.set(underlineStyleKey, b)
+	return s
+}
+
 // Strikethrough sets a strikethrough rule. By default, strikes will not be
 // drawn on whitespace like margins and padding. To change this behavior set
 // StrikethroughSpaces.

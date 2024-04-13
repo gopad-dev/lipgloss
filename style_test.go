@@ -40,6 +40,10 @@ func TestStyleRender(t *testing.T) {
 			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
 		},
 		{
+			r.NewStyle().Underline(true).UnderlineStyle(UnderlineStyleCurly).UnderlineColor(Color("#ff0000")),
+			"\x1b[4;58;2;255;0;0;4mh\x1b[0m\x1b[4;58;2;255;0;0;4me\x1b[0m\x1b[4;58;2;255;0;0;4ml\x1b[0m\x1b[4;58;2;255;0;0;4ml\x1b[0m\x1b[4;58;2;255;0;0;4mo\x1b[0m",
+		},
+		{
 			r.NewStyle().Blink(true),
 			"\x1b[5mhello\x1b[0m",
 		},

@@ -18,6 +18,16 @@ func (s Style) UnsetUnderline() Style {
 	return s
 }
 
+func (s Style) UnsetUnderlineColor() Style {
+	delete(s.rules, underlineColorKey)
+	return s
+}
+
+func (s Style) UnsetUnderlineStyle() Style {
+	delete(s.rules, underlineStyleKey)
+	return s
+}
+
 // UnsetStrikethrough removes the strikethrough style rule, if set.
 func (s Style) UnsetStrikethrough() Style {
 	delete(s.rules, strikethroughKey)
