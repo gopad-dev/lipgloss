@@ -23,6 +23,36 @@ func (s Style) UnsetUnderline() Style {
 	return s
 }
 
+// UnsetDoubleUnderline removes the double underline style rule, if set.
+func (s Style) UnsetDoubleUnderline() Style {
+	s.unset(doubleUnderlineKey)
+	return s
+}
+
+// UnsetCurlyUnderline removes the curly underline style rule, if set.
+func (s Style) UnsetCurlyUnderline() Style {
+	s.unset(curlyUnderlineKey)
+	return s
+}
+
+// UnsetDottedUnderline removes the dotted underline style rule, if set.
+func (s Style) UnsetDottedUnderline() Style {
+	s.unset(dottedUnderlineKey)
+	return s
+}
+
+// UnsetDashedUnderline removes the dashed underline style rule, if set.
+func (s Style) UnsetDashedUnderline() Style {
+	s.unset(dashedUnderlineKey)
+	return s
+}
+
+// UnsetUnderlineColor removes the underline color style rule, if set.
+func (s Style) UnsetUnderlineColor() Style {
+	s.unset(underlineColorKey)
+	return s
+}
+
 // UnsetStrikethrough removes the strikethrough style rule, if set.
 func (s Style) UnsetStrikethrough() Style {
 	s.unset(strikethroughKey)

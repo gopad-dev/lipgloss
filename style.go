@@ -19,6 +19,10 @@ const (
 	boldKey propKey = 1 << iota
 	italicKey
 	underlineKey
+	doubleUnderlineKey
+	curlyUnderlineKey
+	dottedUnderlineKey
+	dashedUnderlineKey
 	strikethroughKey
 	reverseKey
 	blinkKey
@@ -30,6 +34,7 @@ const (
 	// Non-boolean props.
 	foregroundKey
 	backgroundKey
+	underlineColorKey
 	widthKey
 	heightKey
 	alignHorizontalKey
@@ -111,8 +116,9 @@ type Style struct {
 	attrs int
 
 	// props that have values
-	fgColor color.Color
-	bgColor color.Color
+	fgColor        color.Color
+	bgColor        color.Color
+	underlineColor color.Color
 
 	width  int
 	height int
@@ -231,16 +237,21 @@ func (s Style) Render(strs ...string) string {
 		teSpace      ansi.Style
 		teWhitespace ansi.Style
 
-		bold          = s.getAsBool(boldKey, false)
-		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
-		strikethrough = s.getAsBool(strikethroughKey, false)
-		reverse       = s.getAsBool(reverseKey, false)
-		blink         = s.getAsBool(blinkKey, false)
-		faint         = s.getAsBool(faintKey, false)
+		bold            = s.getAsBool(boldKey, false)
+		italic          = s.getAsBool(italicKey, false)
+		underline       = s.getAsBool(underlineKey, false)
+		doubleUnderline = s.getAsBool(doubleUnderlineKey, false)
+		curlyUnderline  = s.getAsBool(curlyUnderlineKey, false)
+		dottedUnderline = s.getAsBool(dottedUnderlineKey, false)
+		dashedUnderline = s.getAsBool(dashedUnderlineKey, false)
+		strikethrough   = s.getAsBool(strikethroughKey, false)
+		reverse         = s.getAsBool(reverseKey, false)
+		blink           = s.getAsBool(blinkKey, false)
+		faint           = s.getAsBool(faintKey, false)
 
-		fg = s.getAsColor(foregroundKey)
-		bg = s.getAsColor(backgroundKey)
+		fg             = s.getAsColor(foregroundKey)
+		bg             = s.getAsColor(backgroundKey)
+		underlineColor = s.getAsColor(underlineColorKey)
 
 		width           = s.getAsInt(widthKey)
 		height          = s.getAsInt(heightKey)
@@ -260,15 +271,19 @@ func (s Style) Render(strs ...string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
-		strikethroughSpaces = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
+		underlineSpaces       = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		doubleUnderlineSpaces = s.getAsBool(underlineSpacesKey, false) || (doubleUnderline && s.getAsBool(underlineSpacesKey, true))
+		curlyUnderlineSpaces  = s.getAsBool(underlineSpacesKey, false) || (curlyUnderline && s.getAsBool(underlineSpacesKey, true))
+		dottedUnderlineSpaces = s.getAsBool(underlineSpacesKey, false) || (dottedUnderline && s.getAsBool(underlineSpacesKey, true))
+		dashedUnderlineSpaces = s.getAsBool(underlineSpacesKey, false) || (dashedUnderline && s.getAsBool(underlineSpacesKey, true))
+		strikethroughSpaces   = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
 
 		// Do we need to style whitespace (padding and space outside
 		// paragraphs) separately?
 		styleWhitespace = reverse
 
 		// Do we need to style spaces separately?
-		useSpaceStyler = (underline && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underlineSpaces || strikethroughSpaces
+		useSpaceStyler = ((underline || doubleUnderline || curlyUnderline || dottedUnderline || dashedUnderline) && !underlineSpaces) || (strikethrough && !strikethroughSpaces) || underline || doubleUnderline || curlyUnderline || dottedUnderline || dashedUnderline || strikethroughSpaces
 
 		transform = s.getAsTransform(transformKey)
 	)
@@ -290,6 +305,19 @@ func (s Style) Render(strs ...string) string {
 	if underline {
 		te = te.Underline()
 	}
+	if doubleUnderline {
+		te = te.DoubleUnderline()
+	}
+	if curlyUnderline {
+		te = te.CurlyUnderline()
+	}
+	if dottedUnderline {
+		te = te.DottedUnderline()
+	}
+	if dashedUnderline {
+		te = te.DashedUnderline()
+	}
+
 	if reverse {
 		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
@@ -321,15 +349,34 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
-	if underline {
-		te = te.Underline()
+	if underlineColor != noColor {
+		te = te.UnderlineColor(underlineColor)
+		if colorWhitespace {
+			teWhitespace = teWhitespace.UnderlineColor(underlineColor)
+		}
+		if useSpaceStyler {
+			teSpace = teSpace.UnderlineColor(underlineColor)
+		}
 	}
+
 	if strikethrough {
 		te = te.Strikethrough()
 	}
 
 	if underlineSpaces {
 		teSpace = teSpace.Underline()
+	}
+	if doubleUnderlineSpaces {
+		teSpace = teSpace.DoubleUnderline()
+	}
+	if curlyUnderlineSpaces {
+		teSpace = teSpace.CurlyUnderline()
+	}
+	if dottedUnderlineSpaces {
+		teSpace = teSpace.DottedUnderline()
+	}
+	if dashedUnderlineSpaces {
+		teSpace = teSpace.DashedUnderline()
 	}
 	if strikethroughSpaces {
 		teSpace = teSpace.Strikethrough()
