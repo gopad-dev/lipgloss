@@ -11,14 +11,15 @@ import (
 const tabWidthDefault = 4
 
 // Property for a key.
-type propKey int64
+type propKey int
 
 // Available properties.
 const (
-	// Boolean props come first.
-	boldKey propKey = 1 << iota
+	boldKey propKey = iota
 	italicKey
 	underlineKey
+	underlineColorKey
+	underlineStyleKey
 	strikethroughKey
 	reverseKey
 	blinkKey
@@ -95,6 +96,16 @@ func (p props) has(k propKey) bool {
 	return p&props(k) != 0
 }
 
+type UnderlineStyle int
+
+const (
+	UnderlineStyleSingle UnderlineStyle = iota + 1
+	UnderlineStyleDouble
+	UnderlineStyleCurly
+	UnderlineStyleDotted
+	UnderlineStyleDashed
+)
+
 // NewStyle returns a new, empty Style. While it's syntactic sugar for the
 // Style{} primitive, it's recommended to use this function for creating styles
 // in case the underlying implementation changes. It takes an optional string
@@ -156,6 +167,9 @@ type Style struct {
 	maxHeight int
 	tabWidth  int
 
+	underlineStyle UnderlineStyle
+	underlineColor TerminalColor
+
 	transform func(string) string
 }
 
@@ -185,13 +199,6 @@ func (s Style) Value() string {
 // Style.SetString prior to using this method.
 func (s Style) String() string {
 	return s.Render()
-}
-
-// Copy returns a copy of this style, including any underlying string values.
-//
-// Deprecated: to copy just use assignment (i.e. a := b). All methods also return a new style.
-func (s Style) Copy() Style {
-	return s
 }
 
 // Inherit overlays the style in the argument onto this style by copying each explicitly
@@ -245,13 +252,15 @@ func (s Style) Render(strs ...string) string {
 		teSpace      = p.String()
 		teWhitespace = p.String()
 
-		bold          = s.getAsBool(boldKey, false)
-		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
-		strikethrough = s.getAsBool(strikethroughKey, false)
-		reverse       = s.getAsBool(reverseKey, false)
-		blink         = s.getAsBool(blinkKey, false)
-		faint         = s.getAsBool(faintKey, false)
+		bold           = s.getAsBool(boldKey, false)
+		italic         = s.getAsBool(italicKey, false)
+		underline      = s.getAsBool(underlineKey, false)
+		underlineColor = s.getAsColor(underlineColorKey)
+		underlineStyle = UnderlineStyle(s.getAsInt(underlineStyleKey))
+		strikethrough  = s.getAsBool(strikethroughKey, false)
+		reverse        = s.getAsBool(reverseKey, false)
+		blink          = s.getAsBool(blinkKey, false)
+		faint          = s.getAsBool(faintKey, false)
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -303,12 +312,21 @@ func (s Style) Render(strs ...string) string {
 		te = te.Italic()
 	}
 	if underline {
-		te = te.Underline()
+		switch underlineStyle {
+		case UnderlineStyleSingle:
+			te = te.Underline(underlineColor.color(s.r))
+		case UnderlineStyleDouble:
+			te = te.Underdouble(underlineColor.color(s.r))
+		case UnderlineStyleCurly:
+			te = te.Undercurl(underlineColor.color(s.r))
+		case UnderlineStyleDotted:
+			te = te.Underdot(underlineColor.color(s.r))
+		case UnderlineStyleDashed:
+			te = te.Underdash(underlineColor.color(s.r))
+		}
 	}
 	if reverse {
-		if reverse {
-			teWhitespace = teWhitespace.Reverse()
-		}
+		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
 	}
 	if blink {
@@ -339,14 +357,36 @@ func (s Style) Render(strs ...string) string {
 	}
 
 	if underline {
-		te = te.Underline()
+		switch underlineStyle {
+		case UnderlineStyleSingle:
+			te = te.Underline(underlineColor.color(s.r))
+		case UnderlineStyleDouble:
+			te = te.Underdouble(underlineColor.color(s.r))
+		case UnderlineStyleCurly:
+			te = te.Undercurl(underlineColor.color(s.r))
+		case UnderlineStyleDotted:
+			te = te.Underdot(underlineColor.color(s.r))
+		case UnderlineStyleDashed:
+			te = te.Underdash(underlineColor.color(s.r))
+		}
 	}
 	if strikethrough {
 		te = te.CrossOut()
 	}
 
 	if underlineSpaces {
-		teSpace = teSpace.Underline()
+		switch underlineStyle {
+		case UnderlineStyleSingle:
+			teSpace = teSpace.Underline(underlineColor.color(s.r))
+		case UnderlineStyleDouble:
+			teSpace = teSpace.Underdouble(underlineColor.color(s.r))
+		case UnderlineStyleCurly:
+			teSpace = teSpace.Undercurl(underlineColor.color(s.r))
+		case UnderlineStyleDotted:
+			teSpace = teSpace.Underdot(underlineColor.color(s.r))
+		case UnderlineStyleDashed:
+			teSpace = teSpace.Underdash(underlineColor.color(s.r))
+		}
 	}
 	if strikethroughSpaces {
 		teSpace = teSpace.CrossOut()

@@ -63,6 +63,10 @@ func (s *Style) set(key propKey, value interface{}) {
 		// TabWidth is the only property that may have a negative value (and
 		// that negative value can be no less than -1).
 		s.tabWidth = value.(int)
+	case underlineStyleKey:
+		s.underlineStyle = value.(UnderlineStyle)
+	case underlineColorKey:
+		s.underlineColor = colorOrNil(value)
 	case transformKey:
 		s.transform = value.(func(string) string)
 	default:
@@ -143,6 +147,10 @@ func (s *Style) setFrom(key propKey, i Style) {
 		s.set(maxHeightKey, i.maxHeight)
 	case tabWidthKey:
 		s.set(tabWidthKey, i.tabWidth)
+	case underlineStyleKey:
+		s.set(underlineStyleKey, i.underlineStyle)
+	case underlineColorKey:
+		s.set(underlineColorKey, i.underlineColor)
 	case transformKey:
 		s.set(transformKey, i.transform)
 	default:
@@ -176,6 +184,21 @@ func (s Style) Italic(v bool) Style {
 // UnderlineSpaces.
 func (s Style) Underline(v bool) Style {
 	s.set(underlineKey, v)
+	return s
+}
+
+// UnderlineColor sets an underline color rule. This can be used to change the
+// underline color to a different color than the foreground color.
+func (s Style) UnderlineColor(c TerminalColor) Style {
+	s.set(underlineColorKey, c)
+	return s
+}
+
+// UnderlineStyle sets an underline style rule. This can be used to change the
+// underline style to a double underline, a dotted underline, or a dashed
+// underline.
+func (s Style) UnderlineStyle(b UnderlineStyle) Style {
+	s.set(underlineStyleKey, b)
 	return s
 }
 
@@ -603,9 +626,8 @@ func (s Style) BorderLeftBackground(c TerminalColor) Style {
 //	var userStyle = text.Style{ /* ... */ }
 //	fmt.Println(userStyle.Inline(true).Render(userInput))
 func (s Style) Inline(v bool) Style {
-	o := s.Copy()
-	o.set(inlineKey, v)
-	return o
+	s.set(inlineKey, v)
+	return s
 }
 
 // MaxWidth applies a max width to a given style. This is useful in enforcing
@@ -621,9 +643,8 @@ func (s Style) Inline(v bool) Style {
 //	var userStyle = text.Style{ /* ... */ }
 //	fmt.Println(userStyle.MaxWidth(16).Render(userInput))
 func (s Style) MaxWidth(n int) Style {
-	o := s.Copy()
-	o.set(maxWidthKey, n)
-	return o
+	s.set(maxWidthKey, n)
+	return s
 }
 
 // MaxHeight applies a max height to a given style. This is useful in enforcing
@@ -633,9 +654,8 @@ func (s Style) MaxWidth(n int) Style {
 // Because this in intended to be used at the time of render, this method will
 // not mutate the style and instead returns a copy.
 func (s Style) MaxHeight(n int) Style {
-	o := s.Copy()
-	o.set(maxHeightKey, n)
-	return o
+	s.set(maxHeightKey, n)
+	return s
 }
 
 // NoTabConversion can be passed to [Style.TabWidth] to disable the replacement

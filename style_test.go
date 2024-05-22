@@ -40,6 +40,10 @@ func TestStyleRender(t *testing.T) {
 			"\x1b[4;4mh\x1b[0m\x1b[4;4me\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4ml\x1b[0m\x1b[4;4mo\x1b[0m",
 		},
 		{
+			r.NewStyle().Underline(true).UnderlineStyle(UnderlineStyleCurly).UnderlineColor(Color("#ff0000")),
+			"\x1b[4;58;2;255;0;0;4mh\x1b[0m\x1b[4;58;2;255;0;0;4me\x1b[0m\x1b[4;58;2;255;0;0;4ml\x1b[0m\x1b[4;58;2;255;0;0;4ml\x1b[0m\x1b[4;58;2;255;0;0;4mo\x1b[0m",
+		},
+		{
 			r.NewStyle().Blink(true),
 			"\x1b[5mhello\x1b[0m",
 		},
@@ -50,7 +54,7 @@ func TestStyleRender(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("hello")
+		s := tc.style.SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
@@ -103,7 +107,7 @@ func TestStyleCustomRender(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		s := tc.style.Copy().SetString("hello")
+		s := tc.style.SetString("hello")
 		res := s.Render()
 		if res != tc.expected {
 			t.Errorf("Test %d, expected:\n\n`%s`\n`%s`\n\nActual output:\n\n`%s`\n`%s`\n\n",
@@ -168,44 +172,6 @@ func TestStyleInherit(t *testing.T) {
 	requireNotEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
 	requireNotEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
 	requireNotEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
-}
-
-func TestStyleCopy(t *testing.T) {
-	t.Parallel()
-
-	s := NewStyle().
-		Bold(true).
-		Italic(true).
-		Underline(true).
-		Strikethrough(true).
-		Blink(true).
-		Faint(true).
-		Foreground(Color("#ffffff")).
-		Background(Color("#111111")).
-		Margin(1, 1, 1, 1).
-		Padding(1, 1, 1, 1).
-		TabWidth(2)
-
-	i := s.Copy()
-
-	requireEqual(t, s.GetBold(), i.GetBold())
-	requireEqual(t, s.GetItalic(), i.GetItalic())
-	requireEqual(t, s.GetUnderline(), i.GetUnderline())
-	requireEqual(t, s.GetStrikethrough(), i.GetStrikethrough())
-	requireEqual(t, s.GetBlink(), i.GetBlink())
-	requireEqual(t, s.GetFaint(), i.GetFaint())
-	requireEqual(t, s.GetForeground(), i.GetForeground())
-	requireEqual(t, s.GetBackground(), i.GetBackground())
-
-	requireEqual(t, s.GetMarginLeft(), i.GetMarginLeft())
-	requireEqual(t, s.GetMarginRight(), i.GetMarginRight())
-	requireEqual(t, s.GetMarginTop(), i.GetMarginTop())
-	requireEqual(t, s.GetMarginBottom(), i.GetMarginBottom())
-	requireEqual(t, s.GetPaddingLeft(), i.GetPaddingLeft())
-	requireEqual(t, s.GetPaddingRight(), i.GetPaddingRight())
-	requireEqual(t, s.GetPaddingTop(), i.GetPaddingTop())
-	requireEqual(t, s.GetPaddingBottom(), i.GetPaddingBottom())
-	requireEqual(t, s.GetTabWidth(), i.GetTabWidth())
 }
 
 func TestStyleUnset(t *testing.T) {

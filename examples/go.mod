@@ -2,7 +2,10 @@ module examples
 
 go 1.17
 
-replace github.com/charmbracelet/lipgloss => ../
+replace (
+	github.com/charmbracelet/lipgloss => ../
+	github.com/muesli/termenv => github.com/topi314/termenv v0.0.0-20240413225005-5f4a43fcdd7b
+)
 
 require (
 	github.com/charmbracelet/lipgloss v0.4.0
@@ -21,9 +24,8 @@ require (
 	github.com/charmbracelet/keygen v0.3.0 // indirect
 	github.com/charmbracelet/x/ansi v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
 )

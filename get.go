@@ -455,6 +455,8 @@ func (s Style) getAsColor(k propKey) TerminalColor {
 		c = s.borderBottomBgColor
 	case borderLeftBackgroundKey:
 		c = s.borderLeftBgColor
+	case underlineColorKey:
+		c = s.underlineColor
 	}
 
 	if c != nil {
@@ -495,6 +497,8 @@ func (s Style) getAsInt(k propKey) int {
 		return s.maxHeight
 	case tabWidthKey:
 		return s.tabWidth
+	case underlineStyleKey:
+		return int(s.underlineStyle)
 	}
 	return 0
 }

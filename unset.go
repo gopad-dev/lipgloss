@@ -23,6 +23,16 @@ func (s Style) UnsetUnderline() Style {
 	return s
 }
 
+func (s Style) UnsetUnderlineColor() Style {
+	s.unset(underlineColorKey)
+	return s
+}
+
+func (s Style) UnsetUnderlineStyle() Style {
+	s.unset(underlineStyleKey)
+	return s
+}
+
 // UnsetStrikethrough removes the strikethrough style rule, if set.
 func (s Style) UnsetStrikethrough() Style {
 	s.unset(strikethroughKey)
