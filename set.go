@@ -13,6 +13,14 @@ func (s *Style) set(key propKey, value interface{}) {
 		s.fgColor = colorOrNil(value)
 	case backgroundKey:
 		s.bgColor = colorOrNil(value)
+	case underlineStyleKey:
+		s.underlineStyle = value.(UnderlineStyle)
+	case underlineColorKey:
+		s.underlineColor = colorOrNil(value)
+	case underlineSpacesStyleKey:
+		s.underlineSpacesStyle = value.(UnderlineStyle)
+	case underlineSpacesColorKey:
+		s.underlineSpacesColor = colorOrNil(value)
 	case widthKey:
 		s.width = max(0, value.(int))
 	case heightKey:
@@ -177,7 +185,24 @@ func (s Style) Italic(v bool) Style {
 // whitespace like margins and padding. To change this behavior set
 // UnderlineSpaces.
 func (s Style) Underline(v bool) Style {
-	s.set(underlineKey, v)
+	style := SingleUnderline
+	if !v {
+		style = NoUnderline
+	}
+	return s.UnderlineStyle(style)
+}
+
+// UnderlineStyle sets an underline style rule. This can be used to change the
+// underline style to a different style than the default single underline.
+func (s Style) UnderlineStyle(style UnderlineStyle) Style {
+	s.set(underlineStyleKey, style)
+	return s
+}
+
+// UnderlineColor sets an underline color rule. This can be used to change the
+// underline color to a different color than the foreground color.
+func (s Style) UnderlineColor(c color.Color) Style {
+	s.set(underlineColorKey, c)
 	return s
 }
 
@@ -663,7 +688,20 @@ func (s Style) TabWidth(n int) Style {
 // default, this is true. Spaces can also be underlined without underlining the
 // text itself.
 func (s Style) UnderlineSpaces(v bool) Style {
-	s.set(underlineSpacesKey, v)
+	style := SingleUnderline
+	if !v {
+		style = NoUnderline
+	}
+	return s.UnderlineSpacesStyle(style)
+}
+
+func (s Style) UnderlineSpacesStyle(style UnderlineStyle) Style {
+	s.set(underlineSpacesStyleKey, style)
+	return s
+}
+
+func (s Style) UnderlineSpacesColor(c color.Color) Style {
+	s.set(underlineSpacesColorKey, c)
 	return s
 }
 

@@ -19,7 +19,13 @@ func (s Style) UnsetItalic() Style {
 
 // UnsetUnderline removes the underline style rule, if set.
 func (s Style) UnsetUnderline() Style {
-	s.unset(underlineKey)
+	s.unset(underlineStyleKey)
+	return s
+}
+
+// UnsetUnderlineColor removes the underline color style rule, if set.
+func (s Style) UnsetUnderlineColor() Style {
+	s.unset(underlineColorKey)
 	return s
 }
 
@@ -308,7 +314,13 @@ func (s Style) UnsetTabWidth() Style {
 
 // UnsetUnderlineSpaces removes the value set by UnderlineSpaces.
 func (s Style) UnsetUnderlineSpaces() Style {
-	s.unset(underlineSpacesKey)
+	s.unset(underlineSpacesStyleKey)
+	return s
+}
+
+// UnsetUnderlineSpacesColor removes the value set by UnderlineSpacesColor.
+func (s Style) UnsetUnderlineSpacesColor() Style {
+	s.unset(underlineSpacesColorKey)
 	return s
 }
 

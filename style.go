@@ -8,6 +8,17 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+type UnderlineStyle int
+
+const (
+	NoUnderline UnderlineStyle = iota
+	SingleUnderline
+	DoubleUnderline
+	CurlyUnderline
+	DottedUnderline
+	DashedUnderline
+)
+
 const tabWidthDefault = 4
 
 // Property for a key.
@@ -18,12 +29,10 @@ const (
 	// Boolean props come first.
 	boldKey propKey = 1 << iota
 	italicKey
-	underlineKey
 	strikethroughKey
 	reverseKey
 	blinkKey
 	faintKey
-	underlineSpacesKey
 	strikethroughSpacesKey
 	colorWhitespaceKey
 
@@ -34,6 +43,12 @@ const (
 	heightKey
 	alignHorizontalKey
 	alignVerticalKey
+
+	underlineColorKey
+	underlineStyleKey
+
+	underlineSpacesColorKey
+	underlineSpacesStyleKey
 
 	// Padding.
 	paddingTopKey
@@ -113,6 +128,12 @@ type Style struct {
 	// props that have values
 	fgColor color.Color
 	bgColor color.Color
+
+	underlineColor color.Color
+	underlineStyle UnderlineStyle
+
+	underlineSpacesColor color.Color
+	underlineSpacesStyle UnderlineStyle
 
 	width  int
 	height int
@@ -231,13 +252,15 @@ func (s Style) Render(strs ...string) string {
 		teSpace      ansi.Style
 		teWhitespace ansi.Style
 
-		bold          = s.getAsBool(boldKey, false)
-		italic        = s.getAsBool(italicKey, false)
-		underline     = s.getAsBool(underlineKey, false)
-		strikethrough = s.getAsBool(strikethroughKey, false)
-		reverse       = s.getAsBool(reverseKey, false)
-		blink         = s.getAsBool(blinkKey, false)
-		faint         = s.getAsBool(faintKey, false)
+		bold           = s.getAsBool(boldKey, false)
+		italic         = s.getAsBool(italicKey, false)
+		underlineStyle = s.getAsUnderlineStyle(underlineStyleKey)
+		underlineColor = s.getAsColor(underlineColorKey)
+		underline      = underlineStyle != NoUnderline
+		strikethrough  = s.getAsBool(strikethroughKey, false)
+		reverse        = s.getAsBool(reverseKey, false)
+		blink          = s.getAsBool(blinkKey, false)
+		faint          = s.getAsBool(faintKey, false)
 
 		fg = s.getAsColor(foregroundKey)
 		bg = s.getAsColor(backgroundKey)
@@ -257,7 +280,11 @@ func (s Style) Render(strs ...string) string {
 		maxWidth        = s.getAsInt(maxWidthKey)
 		maxHeight       = s.getAsInt(maxHeightKey)
 
-		underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		// underlineSpaces     = s.getAsBool(underlineSpacesKey, false) || (underline && s.getAsBool(underlineSpacesKey, true))
+		underlineSpacesStyle = s.getAsUnderlineStyle(underlineSpacesStyleKey)
+		underlineSpacesColor = s.getAsColor(underlineSpacesColorKey)
+		underlineSpaces      = underlineSpacesStyle != NoUnderline
+
 		strikethroughSpaces = s.getAsBool(strikethroughSpacesKey, false) || (strikethrough && s.getAsBool(strikethroughSpacesKey, true))
 
 		// Do we need to style whitespace (padding and space outside
@@ -284,9 +311,24 @@ func (s Style) Render(strs ...string) string {
 	if italic {
 		te = te.Italic()
 	}
-	if underline {
+
+	switch underlineStyle { //nolint:exhaustive
+	case SingleUnderline:
 		te = te.Underline()
+	case DoubleUnderline:
+		te = te.DoubleUnderline()
+	case CurlyUnderline:
+		te = te.CurlyUnderline()
+	case DottedUnderline:
+		te = te.DottedUnderline()
+	case DashedUnderline:
+		te = te.DashedUnderline()
 	}
+
+	if underlineColor != noColor {
+		te = te.UnderlineColor(underlineColor)
+	}
+
 	if reverse {
 		teWhitespace = teWhitespace.Reverse()
 		te = te.Reverse()
@@ -318,16 +360,30 @@ func (s Style) Render(strs ...string) string {
 		}
 	}
 
-	if underline {
-		te = te.Underline()
+	switch underlineSpacesStyle { //nolint:exhaustive
+	case SingleUnderline:
+		te = teSpace.Underline()
+	case DoubleUnderline:
+		te = teSpace.DoubleUnderline()
+	case CurlyUnderline:
+		te = teSpace.CurlyUnderline()
+	case DottedUnderline:
+		te = teSpace.DottedUnderline()
+	case DashedUnderline:
+		te = teSpace.DashedUnderline()
 	}
+
+	if underlineSpacesColor != noColor {
+		teSpace = teSpace.UnderlineColor(underlineSpacesColor)
+		if styleWhitespace {
+			teWhitespace = teWhitespace.UnderlineColor(underlineSpacesColor)
+		}
+	}
+
 	if strikethrough {
 		te = te.Strikethrough()
 	}
 
-	if underlineSpaces {
-		teSpace = teSpace.Underline()
-	}
 	if strikethroughSpaces {
 		teSpace = teSpace.Strikethrough()
 	}

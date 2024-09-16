@@ -21,7 +21,19 @@ func (s Style) GetItalic() bool {
 // GetUnderline returns the style's underline value. If no value is set false is
 // returned.
 func (s Style) GetUnderline() bool {
-	return s.getAsBool(underlineKey, false)
+	return s.GetUnderlineStyle() == SingleUnderline
+}
+
+// GetUnderlineStyle returns the style's underline style. If no value is set
+// NoUnderline is returned.
+func (s Style) GetUnderlineStyle() UnderlineStyle {
+	return s.getAsUnderlineStyle(underlineStyleKey)
+}
+
+// GetUnderlineColor returns the style's underline color. If no value is set
+// NoColor{} is returned.
+func (s Style) GetUnderlineColor() color.Color {
+	return s.getAsColor(underlineColorKey)
 }
 
 // GetStrikethrough returns the style's strikethrough value. If no value is set false
@@ -375,10 +387,22 @@ func (s Style) GetTabWidth() int {
 	return s.getAsInt(tabWidthKey)
 }
 
-// GetUnderlineSpaces returns whether or not the style is set to underline
+// GetUnderlineSpaces returns whether the style is set to underline
 // spaces. If not value is set false is returned.
 func (s Style) GetUnderlineSpaces() bool {
-	return s.getAsBool(underlineSpacesKey, false)
+	return s.GetUnderlineSpacesStyle() == SingleUnderline
+}
+
+// GetUnderlineSpacesStyle returns the style's underline spaces style. If no
+// value is set NoUnderline is returned.
+func (s Style) GetUnderlineSpacesStyle() UnderlineStyle {
+	return s.getAsUnderlineStyle(underlineSpacesStyleKey)
+}
+
+// GetUnderlineSpacesColor returns the style's underline spaces color. If no
+// value is set NoColor{} is returned.
+func (s Style) GetUnderlineSpacesColor() color.Color {
+	return s.getAsColor(underlineSpacesColorKey)
 }
 
 // GetStrikethroughSpaces returns whether or not the style is set to strikethrough
@@ -438,6 +462,10 @@ func (s Style) getAsColor(k propKey) color.Color {
 		c = s.fgColor
 	case backgroundKey:
 		c = s.bgColor
+	case underlineColorKey:
+		c = s.underlineColor
+	case underlineSpacesColorKey:
+		c = s.underlineSpacesColor
 	case marginBackgroundKey:
 		c = s.marginBgColor
 	case borderTopForegroundKey:
@@ -463,6 +491,19 @@ func (s Style) getAsColor(k propKey) color.Color {
 	}
 
 	return noColor
+}
+
+func (s Style) getAsUnderlineStyle(k propKey) UnderlineStyle {
+	if !s.isSet(k) {
+		return NoUnderline
+	}
+	switch k { //nolint:exhaustive
+	case underlineStyleKey:
+		return s.underlineStyle
+	case underlineSpacesStyleKey:
+		return s.underlineSpacesStyle
+	}
+	return NoUnderline
 }
 
 func (s Style) getAsInt(k propKey) int {

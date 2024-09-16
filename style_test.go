@@ -15,19 +15,23 @@ func TestUnderline(t *testing.T) {
 	}{
 		{
 			NewStyle().Underline(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			"\x1b[4ma\x1b[m\x1b[4mb\x1b[m\x1b[4m \x1b[m\x1b[4mc\x1b[m",
 		},
 		{
 			NewStyle().Underline(true).UnderlineSpaces(true),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m\x1b[4m \x1b[0m\x1b[4;4mc\x1b[0m",
+			"\x1b[4ma\x1b[m\x1b[4mb\x1b[m\x1b[4m \x1b[m\x1b[4mc\x1b[m",
 		},
 		{
 			NewStyle().Underline(true).UnderlineSpaces(false),
-			"\x1b[4;4ma\x1b[0m\x1b[4;4mb\x1b[0m \x1b[4;4mc\x1b[0m",
+			"\x1b[4ma\x1b[m\x1b[4mb\x1b[m \x1b[4mc\x1b[m",
 		},
 		{
 			NewStyle().UnderlineSpaces(true),
-			"ab\x1b[4m \x1b[0mc",
+			"ab\x1b[4m \x1b[mc",
+		},
+		{
+			NewStyle().UnderlineStyle(DoubleUnderline),
+			"\x1b[4:5ma\x1b[m\x1b[4:5mb\x1b[m\x1b[4:5m \x1b[m\x1b[4:5mc\x1b[m",
 		},
 	}
 
@@ -51,19 +55,19 @@ func TestStrikethrough(t *testing.T) {
 	}{
 		{
 			NewStyle().Strikethrough(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m\x1b[9m \x1b[m\x1b[9mc\x1b[m",
 		},
 		{
 			NewStyle().Strikethrough(true).StrikethroughSpaces(true),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m\x1b[9m \x1b[0m\x1b[9mc\x1b[0m",
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m\x1b[9m \x1b[m\x1b[9mc\x1b[m",
 		},
 		{
 			NewStyle().Strikethrough(true).StrikethroughSpaces(false),
-			"\x1b[9ma\x1b[0m\x1b[9mb\x1b[0m \x1b[9mc\x1b[0m",
+			"\x1b[9ma\x1b[m\x1b[9mb\x1b[m \x1b[9mc\x1b[m",
 		},
 		{
 			NewStyle().StrikethroughSpaces(true),
-			"ab\x1b[9m \x1b[0mc",
+			"ab\x1b[9m \x1b[mc",
 		},
 	}
 
@@ -90,10 +94,6 @@ func TestStyleRender(t *testing.T) {
 			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
-			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;89;86;224mhello\x1b[m",
-		},
-		{
 			NewStyle().Bold(true),
 			"\x1b[1mhello\x1b[m",
 		},
@@ -103,7 +103,7 @@ func TestStyleRender(t *testing.T) {
 		},
 		{
 			NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
+			"\x1b[4mh\x1b[m\x1b[4me\x1b[m\x1b[4ml\x1b[m\x1b[4ml\x1b[m\x1b[4mo\x1b[m",
 		},
 		{
 			NewStyle().Blink(true),
@@ -136,10 +136,6 @@ func TestStyleCustomRender(t *testing.T) {
 			"\x1b[38;2;89;86;224mhello\x1b[m",
 		},
 		{
-			NewStyle().Foreground(AdaptiveColor{Light: "#fffe12", Dark: "#5A56E0"}),
-			"\x1b[38;2;255;254;18mhello\x1b[m",
-		},
-		{
 			NewStyle().Bold(true),
 			"\x1b[1mhello\x1b[m",
 		},
@@ -149,7 +145,7 @@ func TestStyleCustomRender(t *testing.T) {
 		},
 		{
 			NewStyle().Underline(true),
-			"\x1b[4;4mh\x1b[m\x1b[4;4me\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4ml\x1b[m\x1b[4;4mo\x1b[m",
+			"\x1b[4mh\x1b[m\x1b[4me\x1b[m\x1b[4ml\x1b[m\x1b[4ml\x1b[m\x1b[4mo\x1b[m",
 		},
 		{
 			NewStyle().Blink(true),
